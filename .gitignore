@@ -1,0 +1,12 @@
+# 备份文件
+*.bak
+*.bak.*
+
+# 操作系统 / 编辑器临时文件
+Thumbs.db
+.DS_Store
+
+# 本工具运行产生的临时文件
+_test_*
+_verify*
+_deploy*

@@ -1,0 +1,22 @@
+Windows Registry Editor Version 5.00
+
+[HKEY_CURRENT_USER\Software\Classes\*\shell\CopyFilePath]
+@="Copy File Path"
+"Icon"="imageres.dll,-5302"
+
+[HKEY_CURRENT_USER\Software\Classes\*\shell\CopyFilePath\command]
+@="%APPDATA%\CopyFilePath\CopyPath.exe" "%1"
+
+[HKEY_CURRENT_USER\Software\Classes\Directory\Background\shell\CopyFilePath]
+@="Copy File Path"
+"Icon"="imageres.dll,-5302"
+
+[HKEY_CURRENT_USER\Software\Classes\Directory\Background\shell\CopyFilePath\command]
+@="%APPDATA%\CopyFilePath\CopyPath.exe" "%V"
+
+[HKEY_CURRENT_USER\Software\Classes\Directory\shell\CopyFilePath]
+@="Copy File Path"
+"Icon"="imageres.dll,-5302"
+
+[HKEY_CURRENT_USER\Software\Classes\Directory\shell\CopyFilePath\command]
+@="%APPDATA%\CopyFilePath\CopyPath.exe" "%1"
