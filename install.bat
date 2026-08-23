@@ -1,10 +1,9 @@
-锘緻echo off
-chcp 65001 >nul
+@echo off
 setlocal
 :: ============================================================
-:: Copy File Path - One-click installer (no admin required)
-:: 1) Copy CopyPath.exe to %APPDATA%\CopyFilePath\
-:: 2) Run install.ps1 to write HKCU context menu entries
+:: Copy File Path —— 一键安装（无需管理员）
+:: 1) 复制 CopyPath.exe 到 %APPDATA%\CopyFilePath\
+:: 2) 调用 install.ps1 写入 HKCU 右键菜单
 :: ============================================================
 
 set "APP_DIR=%APPDATA%\CopyFilePath"
@@ -19,10 +18,10 @@ set "ERR=%ERRORLEVEL%"
 
 echo.
 echo ============================================================
-echo [Copy File Path] Installation finished (exit code: %ERR%).
-echo   Right-click any file / folder / folder blank area,
-echo   choose "Copy File Path" to copy the absolute path.
-echo   Run file: %EXE%
+echo [Copy File Path] 安装完成（退出码：%ERR%）。
+echo   在任意文件 / 文件夹 / 文件夹空白处右键，
+echo   选择 "Copy File Path" 即可复制绝对路径。
+echo   运行文件：%EXE%
 echo ============================================================
 echo.
 pause
