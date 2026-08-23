@@ -28,21 +28,21 @@ echo @="Copy File Path"
 echo "Icon"="imageres.dll,-5302"
 echo+
 echo [HKEY_CURRENT_USER\Software\Classes\*\shell\CopyFilePath\command]
-echo @="\"%EXE%\"%1\""
+echo @="\"%EXE%\" \"%1\""
 echo+
 echo [HKEY_CURRENT_USER\Software\Classes\Directory\Background\shell\CopyFilePath]
 echo @="Copy File Path"
 echo "Icon"="imageres.dll,-5302"
 echo+
 echo [HKEY_CURRENT_USER\Software\Classes\Directory\Background\shell\CopyFilePath\command]
-echo @="\"%EXE%\"%V\""
+echo @="\"%EXE%\" \"%V\""
 echo+
 echo [HKEY_CURRENT_USER\Software\Classes\Directory\shell\CopyFilePath]
 echo @="Copy File Path"
 echo "Icon"="imageres.dll,-5302"
 echo+
 echo [HKEY_CURRENT_USER\Software\Classes\Directory\shell\CopyFilePath\command]
-echo @="\"%EXE%\"%1\""
+echo @="\"%EXE%\" \"%1\""
 ) > "%TMPREG%"
 
 reg import "%TMPREG%" >nul 2>&1
