@@ -33,6 +33,8 @@
 ### 方式一（最无脑，推荐）：一键安装脚本
 双击 **`install.bat`**。它会自动把 `CopyPath.exe` 复制到 `%APPDATA%\CopyFilePath\CopyPath.exe`（右键真正调用的运行文件），并向注册表写入用户级右键菜单，无需管理员、无需联网。
 
+> `install.bat` / `uninstall.bat` 已保存为 **UTF-8 with BOM** 并在开头执行 `chcp 65001`，因此支持放在含中文的文件夹路径下双击运行。
+>
 > 若双击 `.bat` 提示「没有与之关联的应用」（个别机器 `.bat` 文件关联损坏），请用 `Win+R` 打开 `cmd`，输入 `"完整路径\install.bat"` 回车执行，或改用方式二手动安装。
 
 ### 方式二：手动安装

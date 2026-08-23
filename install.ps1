@@ -1,6 +1,6 @@
-# Copy File Path - Installer (PowerShell)
+﻿# Copy File Path - Installer (PowerShell)
 # 1) Copy CopyPath.exe to %APPDATA%\CopyFilePath\
-# 2) Write per-folder/per-file context menu entries to HKCU (no admin needed)
+# 2) Write per-file / per-folder context menu entries to HKCU (no admin needed)
 
 $ErrorActionPreference = 'Stop'
 
@@ -16,7 +16,7 @@ if (Test-Path $src) {
 }
 
 if (-not (Test-Path $exe)) {
-    Write-Host "[ERROR] CopyPath.exe not found. Please keep CopyPath.exe next to install.bat."
+    Write-Host '[ERROR] CopyPath.exe not found. Please keep CopyPath.exe next to install.bat.'
     exit 1
 }
 
@@ -59,10 +59,10 @@ public static extern IntPtr SendMessageTimeout(IntPtr hWnd, int Msg, IntPtr wPar
 '@
 try {
     Add-Type -MemberDefinition $signature -Name 'Win32' -Namespace 'P' -ErrorAction Stop
-    [P.Win32]::SendMessageTimeout([IntPtr]0xFFFF, 0x1A, [IntPtr]0, "Shell_TrayWnd", 2, 200, [ref][IntPtr]::Zero) | Out-Null
+    [P.Win32]::SendMessageTimeout([IntPtr]0xFFFF, 0x1A, [IntPtr]0, 'Shell_TrayWnd', 2, 200, [ref][IntPtr]::Zero) | Out-Null
 } catch {}
 
-Write-Host "[Copy File Path] installed."
+Write-Host '[Copy File Path] installed.'
 Write-Host "Run file: $exe"
-Write-Host "Right-click any file / folder / folder blank area -> Copy File Path -> paste."
+Write-Host 'Right-click any file / folder / folder blank area -> Copy File Path -> paste.'
 exit 0
