@@ -12,17 +12,35 @@ set "SRC=%~dp0CopyPath.exe"
 if not exist "%APP_DIR%" mkdir "%APP_DIR%"
 copy /Y "%SRC%" "%EXE%" >nul
 
-reg add "HKCU\Software\Classes\*\shell\CopyFilePath" /ve /t REG_SZ /d "Copy File Path" /f >nul
-reg add "HKCU\Software\Classes\*\shell\CopyFilePath" /v Icon /t REG_SZ /d "imageres.dll,-5302" /f >nul
-reg add "HKCU\Software\Classes\*\shell\CopyFilePath\command" /ve /t REG_SZ /d "\"%EXE%\" \"%%1\"" /f >nul
+:: 用 PowerShell 生成 UTF-16 LE 临时 .reg 并导入（避开 cmd 引号地狱）
+set "PS1=%TEMP%\cfp_install.ps1"
+set "REG=%TEMP%\cfp_install.reg"
+(
+echo $exe = '%EXE%'
+echo $esc = $exe.Replace('\', '\\')
+echo $nl  = [Environment]::NewLine
+echo $reg = 'Windows Registry Editor Version 5.00' + $nl + $nl + ^
+'[HKEY_CURRENT_USER\Software\Classes\*\shell\CopyFilePath]' + $nl + ^
+'@="Copy File Path"' + $nl + ^
+'"Icon"="imageres.dll,-5302"' + $nl + $nl + ^
+'[HKEY_CURRENT_USER\Software\Classes\*\shell\CopyFilePath\command]' + $nl + ^
+'@="' + $esc + '" "%%1"' + $nl + $nl + ^
+'[HKEY_CURRENT_USER\Software\Classes\Directory\Background\shell\CopyFilePath]' + $nl + ^
+'@="Copy File Path"' + $nl + ^
+'"Icon"="imageres.dll,-5302"' + $nl + $nl + ^
+'[HKEY_CURRENT_USER\Software\Classes\Directory\Background\shell\CopyFilePath\command]' + $nl + ^
+'@="' + $esc + '" "%%V"' + $nl + $nl + ^
+'[HKEY_CURRENT_USER\Software\Classes\Directory\shell\CopyFilePath]' + $nl + ^
+'@="Copy File Path"' + $nl + ^
+'"Icon"="imageres.dll,-5302"' + $nl + $nl + ^
+'[HKEY_CURRENT_USER\Software\Classes\Directory\shell\CopyFilePath\command]' + $nl + ^
+'@="' + $esc + '" "%%1"' + $nl
+echo [System.IO.File]::WriteAllText('%REG%', $reg, [System.Text.Encoding]::Unicode)
+) > "%PS1%"
 
-reg add "HKCU\Software\Classes\Directory\Background\shell\CopyFilePath" /ve /t REG_SZ /d "Copy File Path" /f >nul
-reg add "HKCU\Software\Classes\Directory\Background\shell\CopyFilePath" /v Icon /t REG_SZ /d "imageres.dll,-5302" /f >nul
-reg add "HKCU\Software\Classes\Directory\Background\shell\CopyFilePath\command" /ve /t REG_SZ /d "\"%EXE%\" \"%%V\"" /f >nul
-
-reg add "HKCU\Software\Classes\Directory\shell\CopyFilePath" /ve /t REG_SZ /d "Copy File Path" /f >nul
-reg add "HKCU\Software\Classes\Directory\shell\CopyFilePath" /v Icon /t REG_SZ /d "imageres.dll,-5302" /f >nul
-reg add "HKCU\Software\Classes\Directory\shell\CopyFilePath\command" /ve /t REG_SZ /d "\"%EXE%\" \"%%1\"" /f >nul
+powershell -NoProfile -ExecutionPolicy Bypass -File "%PS1%"
+regedit /s "%REG%"
+del "%PS1%" "%REG%" >nul 2>&1
 
 echo.
 echo [Copy File Path] 安装完成。
