@@ -1,0 +1,12 @@
+# Ensure Windows batch / PowerShell / registry files are checked out with CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+*.reg text eol=crlf
+
+# Markdown and source files can use platform default
+*.md text
+*.cs text
+*.json text
+*.gitattributes text
+*.gitignore text
