@@ -8,6 +8,7 @@ setlocal
 reg delete "HKCU\Software\Classes\*\shell\CopyFilePath" /f >nul 2>&1
 reg delete "HKCU\Software\Classes\Directory\Background\shell\CopyFilePath" /f >nul 2>&1
 reg delete "HKCU\Software\Classes\Directory\shell\CopyFilePath" /f >nul 2>&1
+reg delete "HKCU\Software\Classes\*\shell\CopyFilePath_TestZh" /f >nul 2>&1
 
 set "APP_DIR=%APPDATA%\CopyFilePath"
 if exist "%APP_DIR%" rd /s /q "%APP_DIR%" >nul 2>&1

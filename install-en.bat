@@ -1,13 +1,12 @@
 @echo off
 setlocal
 :: ============================================================
-:: Copy File Path - one-click install (no admin needed)
-:: 1) verify .NET Framework 4.x
-:: 2) copy CopyPath.exe to %APPDATA%\CopyFilePath\
-:: 3) let CopyPath.exe write HKCU context menu in Chinese
+:: Copy File Path - one-click install (English menu text)
+:: Use this if your system shows the Chinese menu text incorrectly.
 :: ============================================================
 
-set "LANGUAGE=zh"
+set "LANGUAGE=en"
+set "DISPLAY_NAME=Copy File Path"
 set "APP_DIR=%APPDATA%\CopyFilePath"
 set "EXE=%APP_DIR%\CopyPath.exe"
 set "SRC=%~dp0CopyPath.exe"
@@ -31,7 +30,7 @@ if "%DOTNET_OK%"=="0" (
     echo.
     echo [ERROR] .NET Framework 4.x was not detected on this PC.
     echo   This tool needs .NET Framework 4.x to run.
-    echo   Install .NET Framework 4.8 Runtime first, then run install.bat again:
+    echo   Install .NET Framework 4.8 Runtime first, then run install-en.bat again:
     echo   https://dotnet.microsoft.com/download/dotnet-framework/net48
     echo.
     pause
@@ -46,7 +45,7 @@ reg delete "HKCU\Software\Classes\*\shell\CopyFilePath_TestZh" /f >nul 2>&1
 if not exist "%APP_DIR%" mkdir "%APP_DIR%"
 copy /Y "%SRC%" "%EXE%" >nul
 if not exist "%EXE%" (
-    echo [ERROR] CopyPath.exe not found. Keep it next to install.bat.
+    echo [ERROR] CopyPath.exe not found. Keep it next to install-en.bat.
     pause
     exit /b 1
 )
@@ -54,7 +53,6 @@ if not exist "%EXE%" (
 "%EXE%" --install "%EXE%" %LANGUAGE%
 if errorlevel 1 (
     echo [ERROR] context menu install failed.
-    echo   If you changed the script or file encoding, restore the original files and retry.
     pause
     exit /b 1
 )
@@ -63,7 +61,7 @@ echo.
 echo ============================================================
 echo [Copy File Path] Installed successfully!
 echo   Right-click any file / folder / folder blank,
-echo   choose the Chinese menu item to copy the absolute path.
+echo   choose "%DISPLAY_NAME%" to copy the absolute path.
 echo   Run file: %EXE%
 echo ============================================================
 if "%WIN11%"=="1" (
