@@ -1,6 +1,8 @@
 # Copy File Path —— Windows 右键复制绝对路径
 
-在 Windows 资源管理器里，右键点击任意**文件 / 文件夹 / 文件夹空白处**，菜单中会出现 **「Copy File Path」**，点击即可把该对象的**绝对路径**复制到剪贴板。毫秒级响应，无需联网，不依赖任何第三方库。
+在 Windows 资源管理器里，右键点击任意**文件 / 文件夹 / 文件夹空白处**，菜单中会出现 **`Copy File Path`**，点击即可把该对象的**绝对路径**复制到剪贴板。毫秒级响应，无需联网，不依赖任何第三方库。
+
+适合直接放到 GitHub 仓库或 Releases 给别人下载使用：解压后双击 `install.bat` 即可安装到当前用户，无需管理员权限。
 
 ---
 
@@ -33,9 +35,11 @@
 ### 方式一（最无脑，推荐）：一键安装脚本
 双击 **`install.bat`**。它会自动把 `CopyPath.exe` 复制到 `%APPDATA%\CopyFilePath\CopyPath.exe`（右键真正调用的运行文件），并向注册表写入用户级右键菜单，无需管理员、无需联网。
 
-> `install.bat` / `uninstall.bat` 使用 **GBK（中文 Windows 默认）编码**保存，可直接放在含中文的文件夹路径下双击运行。脚本仅调用系统自带的 `reg` 命令写入用户级注册表，**不依赖 PowerShell**，因此兼容所有中文 Windows。
+> `install.bat` / `uninstall.bat` 使用 **GBK（中文 Windows 默认）编码**保存，可直接放在含中文的文件夹路径下双击运行。脚本仅调用系统自带的 `reg` 命令写入用户级注册表，**不依赖 PowerShell**。
 >
 > 若双击 `.bat` 提示「没有与之关联的应用」（个别机器 `.bat` 文件关联损坏），请用 `Win+R` 打开 `cmd`，输入 `"完整路径\install.bat"` 回车执行，或改用方式二手动安装。
+
+> Windows 11 提醒：右键菜单可能默认折叠，`Copy File Path` 往往在 **“显示更多选项”** 里。
 
 ### 方式二：手动安装（无脚本）
 1. 把 `CopyPath.exe` 复制到 `%APPDATA%\CopyFilePath\CopyPath.exe`（`%APPDATA%` 即 `C:\Users\<你的用户名>\AppData\Roaming`）；
@@ -53,6 +57,8 @@
 - 在文件夹内**空白处右键** → `Copy File Path` → 复制当前文件夹路径。
 
 复制后即可 `Ctrl+V` 粘贴到任意需要路径的地方。
+
+如果点击菜单后没有立即复制成功，通常是剪贴板正被别的程序占用；当前版本会自动短暂重试几次，再失败时弹出提示框。
 
 ---
 
@@ -105,6 +111,19 @@ C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe -nologo -target:winexe -
 ```
 
 或使用任意 .NET SDK（`dotnet build`）。
+
+---
+
+## 发布到 GitHub 前建议
+
+如果你准备把这个仓库公开给别人直接下载使用，建议一起说明下面几点：
+
+- **推荐发布 zip 包或 GitHub Release**：很多普通用户不会用 `git clone`，直接下载压缩包更省事。
+- **Windows 11 用户要看“显示更多选项”**：否则容易误以为没安装成功。
+- **未签名 exe 可能触发 SmartScreen 提示**：这是 Windows 对陌生二进制文件的常见提醒，不代表程序有问题，但会影响一部分用户的信任感。
+- **依赖系统自带 .NET Framework 4.x**：绝大多数 Windows 10/11 都有，极少数精简系统可能需要单独安装。
+- **`.bat` 文件关联损坏的机器无法直接双击脚本**：README 里已经给了备用安装方式。
+- **上下文菜单名称目前固定为英文 `Copy File Path`**：如果目标用户以中文用户为主，可以考虑后续提供中英文两个发布分支或可切换文案。
 
 ---
 

@@ -1,5 +1,5 @@
 @echo off
-setlocal enabledelayedexpansion
+setlocal
 :: ============================================================
 :: Copy File Path - one-click install (no admin needed)
 :: 1) copy CopyPath.exe to %APPDATA%\CopyFilePath\
@@ -18,40 +18,36 @@ if not exist "%EXE%" (
     exit /b 1
 )
 
-:: build temp reg (replace %APPDATA% with real path) then import
-set "TMPREG=%TEMP%\CopyFilePath_install.reg"
-(
-echo Windows Registry Editor Version 5.00
-echo+
-echo [HKEY_CURRENT_USER\Software\Classes\*\shell\CopyFilePath]
-echo @="Copy File Path"
-echo "Icon"="imageres.dll,-5302"
-echo+
-echo [HKEY_CURRENT_USER\Software\Classes\*\shell\CopyFilePath\command]
-echo @="\"%EXE%\" \"%1\""
-echo+
-echo [HKEY_CURRENT_USER\Software\Classes\Directory\Background\shell\CopyFilePath]
-echo @="Copy File Path"
-echo "Icon"="imageres.dll,-5302"
-echo+
-echo [HKEY_CURRENT_USER\Software\Classes\Directory\Background\shell\CopyFilePath\command]
-echo @="\"%EXE%\" \"%V\""
-echo+
-echo [HKEY_CURRENT_USER\Software\Classes\Directory\shell\CopyFilePath]
-echo @="Copy File Path"
-echo "Icon"="imageres.dll,-5302"
-echo+
-echo [HKEY_CURRENT_USER\Software\Classes\Directory\shell\CopyFilePath\command]
-echo @="\"%EXE%\" \"%1\""
-) > "%TMPREG%"
+:: write registry entries directly to avoid .reg quoting issues
+reg add "HKCU\Software\Classes\*\shell\CopyFilePath" /ve /d "Copy File Path" /f >nul 2>&1
+if errorlevel 1 goto :reg_error
+reg add "HKCU\Software\Classes\*\shell\CopyFilePath" /v "Icon" /d "imageres.dll,-5302" /f >nul 2>&1
+if errorlevel 1 goto :reg_error
+reg add "HKCU\Software\Classes\*\shell\CopyFilePath\command" /ve /d "\"%EXE%\" \"%%1\"" /f >nul 2>&1
+if errorlevel 1 goto :reg_error
 
-reg import "%TMPREG%" >nul 2>&1
-if errorlevel 1 (
+reg add "HKCU\Software\Classes\Directory\Background\shell\CopyFilePath" /ve /d "Copy File Path" /f >nul 2>&1
+if errorlevel 1 goto :reg_error
+reg add "HKCU\Software\Classes\Directory\Background\shell\CopyFilePath" /v "Icon" /d "imageres.dll,-5302" /f >nul 2>&1
+if errorlevel 1 goto :reg_error
+reg add "HKCU\Software\Classes\Directory\Background\shell\CopyFilePath\command" /ve /d "\"%EXE%\" \"%%V\"" /f >nul 2>&1
+if errorlevel 1 goto :reg_error
+
+reg add "HKCU\Software\Classes\Directory\shell\CopyFilePath" /ve /d "Copy File Path" /f >nul 2>&1
+if errorlevel 1 goto :reg_error
+reg add "HKCU\Software\Classes\Directory\shell\CopyFilePath" /v "Icon" /d "imageres.dll,-5302" /f >nul 2>&1
+if errorlevel 1 goto :reg_error
+reg add "HKCU\Software\Classes\Directory\shell\CopyFilePath\command" /ve /d "\"%EXE%\" \"%%1\"" /f >nul 2>&1
+if errorlevel 1 goto :reg_error
+
+goto :install_ok
+
+:reg_error
     echo [ERROR] registry write failed. Run as admin once, or retry under a Chinese path.
     pause
     exit /b 1
-)
-del "%TMPREG%" >nul 2>&1
+
+:install_ok
 
 echo.
 echo ============================================================
