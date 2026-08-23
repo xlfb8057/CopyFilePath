@@ -30,16 +30,12 @@
 
 ## 安装
 
-### 方式一（最无脑，推荐）：双击安装器
-**下载后保持整个文件夹完整**，双击 **`Setup.exe`** 即可。它会自动把 `CopyPath.exe` 复制到 `%APPDATA%\CopyFilePath\`（右键真正调用的运行文件），并写入用户级右键菜单，弹窗提示「安装成功」。无需管理员、无需联网。
+### 方式一（最无脑，推荐）：一键安装脚本
+双击 **`install.bat`**。它会自动把 `CopyPath.exe` 复制到 `%APPDATA%\CopyFilePath\CopyPath.exe`（右键真正调用的运行文件），并向注册表写入用户级右键菜单，无需管理员、无需联网。
 
-> 若你拿到的只是源码包（`Installer.cs` 还没编译成 `Setup.exe`），请先看文末「编译安装器」一节，在本机编译一次即可。
+> 若双击 `.bat` 提示「没有与之关联的应用」（个别机器 `.bat` 文件关联损坏），请用 `Win+R` 打开 `cmd`，输入 `"完整路径\install.bat"` 回车执行，或改用方式二手动安装。
 
-### 方式二：一键安装脚本
-双击 **`install.bat`**。它会自动把 `CopyPath.exe` 复制到 `%APPDATA%\CopyFilePath\CopyPath.exe`，并向注册表写入右键菜单项（无需管理员）。
-> 若双击 `.bat` 提示「没有与之关联的应用」（个别机器 `.bat` 文件关联损坏），请用 `Win+R` 打开 `cmd`，输入 `"完整路径\install.bat"` 回车执行，或改用方式一 / 方式三。
-
-### 方式三：手动安装
+### 方式二：手动安装
 1. 把 `CopyPath.exe` 复制到 `%APPDATA%\CopyFilePath\CopyPath.exe`（`%APPDATA%` 即 `C:\Users\<你的用户名>\AppData\Roaming`）；
 2. 双击 **`install.reg`** 合并到注册表（右键「合并」）。
 
@@ -60,13 +56,10 @@
 
 ## 卸载
 
-### 方式一（最无脑，推荐）：双击安装器卸载
-**以管理员身份运行** `Setup.exe /uninstall`（右键 `Setup.exe` →「以管理员身份运行」）。它会删除注册表右键菜单（同时清理 `HKCU` / `HKLM` / 32 位视图整键，不留空父键）、删除运行文件、刷新资源管理器。
+### 方式一（推荐）：一键卸载脚本
+右键 **`uninstall.bat`** → **「以管理员身份运行」**。它会删除右键菜单（同时清理本机 `HKCU` 安装项与旧版可能残留的 `HKLM` / 32 位视图整键，不留空父键）、删除运行文件 `%APPDATA%\CopyFilePath`、重启资源管理器刷新菜单。
 
-### 方式二：一键卸载脚本
-右键 **`uninstall.bat`** → **「以管理员身份运行」**。它会删除注册表右键菜单（同时清理本机 `HKCU` 安装项与旧版可能残留的 `HKLM` 项）、删除运行文件 `%APPDATA%\CopyFilePath`、重启资源管理器。
-
-### 方式三：手动卸载
+### 方式二：手动卸载
 双击 **`uninstall.reg`** 合并（删注册表项，无需管理员即可清除本机 `HKCU` 项）。如需连运行文件一起删，手动删掉 `%APPDATA%\CopyFilePath` 文件夹即可。
 
 > 若卸载后右键仍显示旧菜单，是资源管理器缓存，注销或重启电脑即可刷新。
@@ -83,12 +76,10 @@
 
 | 文件 | 作用 | 是否必须 |
 |------|------|----------|
-| `Setup.exe` | 一键安装/卸载器（`Installer.cs` 编译产物，**最推荐**） | ✅ 必需（让他人无脑用） |
 | `CopyPath.exe` | 右键菜单调用的运行程序（预编译） | ✅ 必需 |
 | `CopyPath.cs` | `CopyPath.exe` 的对应源码 | 可选（重编译用） |
-| `Installer.cs` | `Setup.exe` 的源码（安装/卸载合一） | 可选（重编译用） |
-| `install.bat` | 一键安装脚本（备用） | 可选 |
-| `uninstall.bat` | 一键卸载脚本（备用，需管理员） | 可选 |
+| `install.bat` | 一键安装脚本（推荐，免管理员） | ✅ 必需 |
+| `uninstall.bat` | 一键卸载脚本（需管理员） | ✅ 必需 |
 | `install.reg` | 注册表安装文件（手动备用） | 可选 |
 | `uninstall.reg` | 注册表卸载文件（手动备用） | 可选 |
 | `README.md` | 本说明 | — |
@@ -114,18 +105,6 @@ C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe -nologo -target:winexe -
 ```
 
 或使用任意 .NET SDK（`dotnet build`）。
-
-### 编译安装器（发布给他人前必做一步）
-
-`Setup.exe` 不会随源码自动生成，需要你在**本机**编译一次，再随包发布（下载用户就能直接双击，无需任何环境）：
-
-```
-C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe -nologo -target:winexe -r:System.Windows.Forms.dll -out:Setup.exe Installer.cs
-```
-
-- `-target:winexe`：无控制台黑窗口，只弹提示框，最贴近"无脑"。
-- 编译出的 `Setup.exe` 必须与 `CopyPath.exe` 放在**同一文件夹**（`Setup.exe` 安装时会自动复制同目录的 `CopyPath.exe`）。
-- 卸载命令：`Setup.exe /uninstall`（建议以管理员身份运行，以清除可能的 HKLM 残留）。
 
 ---
 
