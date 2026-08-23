@@ -33,13 +33,13 @@
 ### 方式一（最无脑，推荐）：一键安装脚本
 双击 **`install.bat`**。它会自动把 `CopyPath.exe` 复制到 `%APPDATA%\CopyFilePath\CopyPath.exe`（右键真正调用的运行文件），并向注册表写入用户级右键菜单，无需管理员、无需联网。
 
-> `install.bat` / `uninstall.bat` 使用 **GBK（中文 Windows 默认）编码**保存，可直接放在含中文的文件夹路径下双击运行；`install.ps1` 使用 UTF-8 with BOM，PowerShell 可正确识别。
+> `install.bat` / `uninstall.bat` 使用 **GBK（中文 Windows 默认）编码**保存，可直接放在含中文的文件夹路径下双击运行。脚本仅调用系统自带的 `reg` 命令写入用户级注册表，**不依赖 PowerShell**，因此兼容所有中文 Windows。
 >
 > 若双击 `.bat` 提示「没有与之关联的应用」（个别机器 `.bat` 文件关联损坏），请用 `Win+R` 打开 `cmd`，输入 `"完整路径\install.bat"` 回车执行，或改用方式二手动安装。
 
-### 方式二：手动安装
+### 方式二：手动安装（无脚本）
 1. 把 `CopyPath.exe` 复制到 `%APPDATA%\CopyFilePath\CopyPath.exe`（`%APPDATA%` 即 `C:\Users\<你的用户名>\AppData\Roaming`）；
-2. 双击 **`install.reg`** 合并到注册表（右键「合并」）。
+2. 用 `regedit` 手动在 `HKCU:\Software\Classes\*\shell\CopyFilePath`（及 `Directory`、`Directory\Background` 两处）下建项，`command` 默认值设为 `"%APPDATA%\CopyFilePath\CopyPath.exe" "%1"`。
 
 > 安装后无需重启，直接右键即可看到菜单。
 
@@ -59,10 +59,10 @@
 ## 卸载
 
 ### 方式一（推荐）：一键卸载脚本
-右键 **`uninstall.bat`** → **「以管理员身份运行」**。它会删除右键菜单（同时清理本机 `HKCU` 安装项与旧版可能残留的 `HKLM` / 32 位视图整键，不留空父键）、删除运行文件 `%APPDATA%\CopyFilePath`、重启资源管理器刷新菜单。
+双击 **`uninstall.bat`** 即可（无需管理员，它只清理本机 `HKCU` 安装项与运行文件）。若你曾用旧版装过 `HKLM` 项，右键本文件「以管理员身份运行」可一并清除。
 
-### 方式二：手动卸载
-双击 **`uninstall.reg`** 合并（删注册表项，无需管理员即可清除本机 `HKCU` 项）。如需连运行文件一起删，手动删掉 `%APPDATA%\CopyFilePath` 文件夹即可。
+### 方式二：手动卸载（无脚本）
+用 `regedit` 删除 `HKCU:\Software\Classes\*\shell\CopyFilePath`、`HKCU:\Software\Classes\Directory\Background\shell\CopyFilePath`、`HKCU:\Software\Classes\Directory\shell\CopyFilePath` 三项，再手动删掉 `%APPDATA%\CopyFilePath` 文件夹即可。
 
 > 若卸载后右键仍显示旧菜单，是资源管理器缓存，注销或重启电脑即可刷新。
 
@@ -80,10 +80,8 @@
 |------|------|----------|
 | `CopyPath.exe` | 右键菜单调用的运行程序（预编译） | ✅ 必需 |
 | `CopyPath.cs` | `CopyPath.exe` 的对应源码 | 可选（重编译用） |
-| `install.bat` | 一键安装脚本（推荐，免管理员） | ✅ 必需 |
-| `uninstall.bat` | 一键卸载脚本（需管理员） | ✅ 必需 |
-| `install.reg` | 注册表安装文件（手动备用） | 可选 |
-| `uninstall.reg` | 注册表卸载文件（手动备用） | 可选 |
+| `install.bat` | 一键安装脚本（推荐，免管理员，纯 reg 写入） | ✅ 必需 |
+| `uninstall.bat` | 一键卸载脚本（免管理员，纯 reg 清理） | ✅ 必需 |
 | `README.md` | 本说明 | — |
 | `LICENSE` | MIT 许可 | — |
 

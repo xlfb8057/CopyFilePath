@@ -1,9 +1,9 @@
 @echo off
-setlocal
+setlocal enabledelayedexpansion
 :: ============================================================
-:: Copy File Path —— 一键安装（无需管理员）
-:: 1) 复制 CopyPath.exe 到 %APPDATA%\CopyFilePath\
-:: 2) 调用 install.ps1 写入 HKCU 右键菜单
+:: Copy File Path - one-click install (no admin needed)
+:: 1) copy CopyPath.exe to %APPDATA%\CopyFilePath\
+:: 2) write HKCU context menu (file / folder / folder blank)
 :: ============================================================
 
 set "APP_DIR=%APPDATA%\CopyFilePath"
@@ -12,16 +12,53 @@ set "SRC=%~dp0CopyPath.exe"
 
 if not exist "%APP_DIR%" mkdir "%APP_DIR%"
 copy /Y "%SRC%" "%EXE%" >nul
+if not exist "%EXE%" (
+    echo [ERROR] CopyPath.exe not found. Keep it next to install.bat.
+    pause
+    exit /b 1
+)
 
-powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0install.ps1"
-set "ERR=%ERRORLEVEL%"
+:: build temp reg (replace %APPDATA% with real path) then import
+set "TMPREG=%TEMP%\CopyFilePath_install.reg"
+(
+echo Windows Registry Editor Version 5.00
+echo+
+echo [HKEY_CURRENT_USER\Software\Classes\*\shell\CopyFilePath]
+echo @="Copy File Path"
+echo "Icon"="imageres.dll,-5302"
+echo+
+echo [HKEY_CURRENT_USER\Software\Classes\*\shell\CopyFilePath\command]
+echo @="\"%EXE%\"%1\""
+echo+
+echo [HKEY_CURRENT_USER\Software\Classes\Directory\Background\shell\CopyFilePath]
+echo @="Copy File Path"
+echo "Icon"="imageres.dll,-5302"
+echo+
+echo [HKEY_CURRENT_USER\Software\Classes\Directory\Background\shell\CopyFilePath\command]
+echo @="\"%EXE%\"%V\""
+echo+
+echo [HKEY_CURRENT_USER\Software\Classes\Directory\shell\CopyFilePath]
+echo @="Copy File Path"
+echo "Icon"="imageres.dll,-5302"
+echo+
+echo [HKEY_CURRENT_USER\Software\Classes\Directory\shell\CopyFilePath\command]
+echo @="\"%EXE%\"%1\""
+) > "%TMPREG%"
+
+reg import "%TMPREG%" >nul 2>&1
+if errorlevel 1 (
+    echo [ERROR] registry write failed. Run as admin once, or retry under a Chinese path.
+    pause
+    exit /b 1
+)
+del "%TMPREG%" >nul 2>&1
 
 echo.
 echo ============================================================
-echo [Copy File Path] 安装完成（退出码：%ERR%）。
-echo   在任意文件 / 文件夹 / 文件夹空白处右键，
-echo   选择 "Copy File Path" 即可复制绝对路径。
-echo   运行文件：%EXE%
+echo [Copy File Path] Installed successfully!
+echo   Right-click any file / folder / folder blank,
+echo   choose "Copy File Path" to copy the absolute path.
+echo   Run file: %EXE%
 echo ============================================================
 echo.
 pause
