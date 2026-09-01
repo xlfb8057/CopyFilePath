@@ -1,6 +1,6 @@
 # Copy File Path —— Windows 右键复制绝对路径
 
-在 Windows 资源管理器里，右键点击任意**文件 / 文件夹 / 文件夹空白处**，菜单中会出现 **`复制文件路径`**，点击即可把该对象的**绝对路径**复制到剪贴板。毫秒级响应，无需联网，不依赖任何第三方库。
+在 Windows 资源管理器里，右键点击任意**文件 / 文件夹 / 文件夹空白处**，菜单中会出现 **`复制文件路径`**，点击即可把选中对象的**绝对路径**复制到剪贴板。支持同时选择多个文件或文件夹，复制结果会以换行分隔。毫秒级响应，无需联网，不依赖任何第三方库。
 
 适合直接放到 GitHub 仓库或 Releases 给别人下载使用：解压后双击 `install.bat` 即可安装到当前用户，无需管理员权限。若个别机器中文菜单名显示异常，还可以改用 `install-en.bat` 安装英文菜单名版本。
 
@@ -9,6 +9,7 @@
 ## 功能特性
 
 - **三处触发**：文件、文件夹、文件夹空白处（空白处复制的是当前文件夹路径）。
+- **支持多选**：同时选择多个文件或文件夹后，右键点击 `复制文件路径`，粘贴时每行一个绝对路径。
 - **绝对路径**：直接得到 `C:\Users\A\Projects\doc.txt` 这样的完整路径，方便粘贴到终端、IDE、聊天框。
 - **零运行时开销**：路径由编译后的小程序直接写入系统剪贴板，不经过 `wscript` / `clip.exe` 等中间进程。
 - **仅当前用户**：写入 `HKEY_CURRENT_USER`，安装**不需要管理员权限**。
@@ -23,7 +24,7 @@
 | 运行库 | **.NET Framework 4.x**（Windows 自带，通常无需安装） |
 | 第三方库 / 插件 | **无** |
 | 网络 | **不需要**（完全离线） |
-| 剪贴板 | 使用系统自带剪贴板 API（`System.Windows.Forms.Clipboard`） |
+| 剪贴板 | 使用系统自带 Win32 剪贴板 API |
 | 图标 | 使用系统内置资源 `imageres.dll,-5302`，无需额外文件 |
 
 > 说明：`CopyPath.exe` 是一个 .NET Framework 的 Windows 程序（`winexe`）。现代 Windows 已预装 .NET Framework 4.x，因此下载后**双击即用**，无需任何前置安装。若极少数精简系统缺少 .NET Framework，需先安装 [.NET Framework 4.8](https://dotnet.microsoft.com/download/dotnet-framework)。
@@ -46,7 +47,9 @@
 
 ### 方式二：手动安装（无脚本）
 1. 把 `CopyPath.exe` 复制到 `%APPDATA%\CopyFilePath\CopyPath.exe`（`%APPDATA%` 即 `C:\Users\<你的用户名>\AppData\Roaming`）；
-2. 用 `regedit` 手动在 `HKCU:\Software\Classes\*\shell\CopyFilePath`（及 `Directory`、`Directory\Background` 两处）下建项，`command` 默认值设为 `"%APPDATA%\CopyFilePath\CopyPath.exe" "%1"`。
+2. 用 `regedit` 手动在 `HKCU:\Software\Classes\*\shell\CopyFilePath`（及 `Directory`、`Directory\Background` 两处）下建项；
+3. 三处菜单项都设置字符串值 `MultiSelectModel=Player`；
+4. 文件和文件夹菜单的 `command` 默认值设为 `"%APPDATA%\CopyFilePath\CopyPath.exe" "%1"`，文件夹空白处菜单的 `command` 默认值设为 `"%APPDATA%\CopyFilePath\CopyPath.exe" "%V"`。
 
 > 安装后无需重启，直接右键即可看到菜单。
 
@@ -57,9 +60,16 @@
 在资源管理器中：
 - 右键**文件** → `复制文件路径` → 复制该文件绝对路径；
 - 右键**文件夹** → `复制文件路径` → 复制该文件夹绝对路径；
+- 同时选中**多个文件 / 文件夹** → `复制文件路径` → 复制多行绝对路径；
 - 在文件夹内**空白处右键** → `复制文件路径` → 复制当前文件夹路径。
 
-复制后即可 `Ctrl+V` 粘贴到任意需要路径的地方。
+复制后即可 `Ctrl+V` 粘贴到任意需要路径的地方。多选时，每个路径占一行，例如：
+
+```text
+C:\Users\A\Projects\a.txt
+C:\Users\A\Projects\b.txt
+C:\Users\A\Projects\docs
+```
 
 如果点击菜单后没有立即复制成功，通常是剪贴板正被别的程序占用；当前版本会自动短暂重试几次，再失败时弹出提示框。
 
@@ -101,9 +111,10 @@
 
 1. 安装时，`install.bat` 或 `install-en.bat` 会先检查 `.NET Framework 4.x`，再把 `CopyPath.exe` 复制到 `%APPDATA%\CopyFilePath\`；
 2. 然后 `CopyPath.exe` 以安装模式写入三类右键菜单注册表项，并设置中文或英文菜单名；
-3. 真正点击右键菜单时，`CopyPath.exe` 收到目标路径参数后，调用系统剪贴板 API 将其写入剪贴板并退出。
+3. 真正点击右键菜单时，`CopyPath.exe` 收到目标路径参数后，会等待一个很短的聚合窗口，把同一批选择中的多个路径合并为多行文本；
+4. 最后程序调用系统 Win32 剪贴板 API，将结果写入剪贴板并退出。
 
-整个过程是「注册表挂接 + 小程序直写剪贴板」，没有临时文件、没有管道、没有子进程轮询，因此响应很快。
+整个过程是「注册表挂接 + 小程序直写剪贴板」。多选时会短暂使用系统临时目录聚合同一批路径；没有管道、没有子进程轮询，因此响应很快。
 
 ---
 
@@ -127,6 +138,7 @@ C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe -nologo -target:winexe -
 - **Windows 11 用户要看“显示更多选项”**：否则容易误以为没安装成功。
 - **未签名 exe 可能触发 SmartScreen 提示**：这是 Windows 对陌生二进制文件的常见提醒，不代表程序有问题，但会影响一部分用户的信任感。
 - **依赖系统自带 .NET Framework 4.x**：绝大多数 Windows 10/11 都有，极少数精简系统可能需要单独安装。
+- **多选数量不建议过大**：当前方案使用 Windows 传统右键菜单机制，适合日常多选文件；一次选择特别多文件时，Windows 自身可能有菜单或命令行限制。
 - **`.bat` 文件关联损坏的机器无法直接双击脚本**：README 里已经给了备用安装方式。
 - **建议同时保留 `install.bat` 和 `install-en.bat`**：前者默认中文，后者是英文保底版本，适合排查个别机器的显示问题。
 
@@ -148,7 +160,13 @@ C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe -nologo -target:winexe -
 - **系统缺少 .NET Framework 4.x**：安装脚本会直接弹出明确提示并停止安装。你可以安装 [.NET Framework 4.8 Runtime](https://dotnet.microsoft.com/download/dotnet-framework/net48) 后再试。
 - **`CopyPath.exe` 被删除了**：右键菜单真正调用的是 `%APPDATA%\CopyFilePath\CopyPath.exe`，如果这个文件不在了，菜单会显示但无法工作。
 
-### 3. 双击 `install.bat` 没反应，或者提示没有关联应用
+### 3. 多选后只复制了部分路径
+
+当前版本已经为传统右键菜单启用了多选支持，并兼容资源管理器一次传多个路径或连续启动多次程序这两种情况。为了合并同一批多选路径，程序会等待一个很短的聚合窗口；如果极短时间内连续触发两次复制操作，结果可能被视为同一批选择。
+
+如果一次选中特别多文件，Windows 传统右键菜单和命令行参数长度仍然可能有限制。建议先按几十个文件一批使用；如果你需要一次复制几百甚至上千个路径，后续可以改成更重的 Shell Extension 方案。
+
+### 4. 双击 `install.bat` 没反应，或者提示没有关联应用
 
 这通常不是本工具本身的问题，而是你的系统里 `.bat` 文件关联损坏了。
 
@@ -159,7 +177,7 @@ C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe -nologo -target:winexe -
 3. 把 `install.bat` 拖进窗口，或手动输入它的完整路径
 4. 回车执行
 
-### 4. Windows 提示“不受信任的应用”或 SmartScreen 警告
+### 5. Windows 提示“不受信任的应用”或 SmartScreen 警告
 
 这是因为仓库里的 `CopyPath.exe` 是未签名的本地小工具。对很多从 GitHub 下载的 Windows 可执行文件来说，这是常见现象，不代表程序本身一定有问题。
 
@@ -169,7 +187,7 @@ C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe -nologo -target:winexe -
 - 在 GitHub Releases 里附带 SHA256 校验值
 - 在 README 里解释工具用途和源码位置，降低用户顾虑
 
-### 5. 中文菜单名显示成乱码
+### 6. 中文菜单名显示成乱码
 
 当前仓库已经把菜单名默认改成 **`复制文件路径`**，并且把中文写注册表的逻辑移到了 `CopyPath.exe` 里，尽量绕开了批处理编码问题。
 
